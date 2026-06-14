@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Notes — a blog</title>
+<style>
+  :root {
+    --paper: #F6F1E1;
+    --paper-raised: #FFFDF5;
+    --ink: #2B3A2E;
+    --ink-soft: #6E7A64;
+    --line: #DCD3B8;
+    --accent: #4A6149;
+    --accent-soft: #DDE5D8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 3.5rem;
+  }
+
+  .site-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2.4rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.4rem;
+  }
+
+  .site-tagline {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  /* Controls row */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 2.5rem 0 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .post-count {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .sort-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.4rem 0.6rem 0.4rem 0.9rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--ink);
+    transition: border-color 0.15s ease;
+    font-family: inherit;
+  }
+
+  .sort-toggle:hover { border-color: var(--accent); }
+
+  .sort-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .sort-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    transition: transform 0.3s ease;
+    font-size: 0.9rem;
+  }
+
+  .sort-toggle[data-order="oldest"] .sort-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* Post list */
+  .posts {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .post {
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.15s ease;
+  }
+
+  .post:last-child { border-bottom: none; }
+
+  .post:hover { opacity: 0.7; }
+
+  .post-date {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    padding-top: 0.3rem;
+    white-space: nowrap;
+  }
+
+  .post-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin-bottom: 0.35rem;
+    line-height: 1.35;
+  }
+
+  .post-excerpt {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    max-width: 52ch;
+  }
+
+  /* Subscribe */
+  .subscribe {
+    margin-top: 4rem;
+    padding: 2rem;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+
+  .subscribe-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.3rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .subscribe-copy {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin-bottom: 1.25rem;
+    max-width: 46ch;
+  }
+
+  .subscribe-form {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .subscribe-form input[type="email"] {
+    flex: 1;
+    min-width: 180px;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .subscribe-form input[type="email"]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+
+  .subscribe-form button {
+    padding: 0.7rem 1.4rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #FFF;
+    font-size: 0.95rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .subscribe-form button:hover { background: #3A4D3A; }
+
+  .subscribe-note {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin-top: 0.75rem;
+  }
+
+  .subscribe-success {
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-top: 0.75rem;
+    display: none;
+  }
+
+  .subscribe-success.show { display: block; }
+
+  @media (max-width: 520px) {
+    .post { grid-template-columns: 1fr; gap: 0.35rem; }
+    .post-date { order: -1; }
+    .site-title { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="site-title">Field Notes</div>
+      <div class="site-tagline">Slow thoughts on things worth slowing down for.</div>
+    </header>
+
+    <div class="controls">
+      <span class="post-count" id="postCount"></span>
+      <button class="sort-toggle" id="sortToggle" data-order="latest" aria-label="Toggle sort order">
+        <span id="sortLabel">Latest first</span>
+        <span class="sort-arrow" aria-hidden="true">↓</span>
+      </button>
+    </div>
+
+    <div class="posts" id="posts"></div>
+
+    <div class="subscribe">
+      <div class="subscribe-title">Get new posts by email</div>
+      <p class="subscribe-copy">No spam, no schedule pressure — just an email when something new goes up.</p>
+      <form class="subscribe-form" id="subscribeForm">
+        <input type="email" id="subscribeEmail" placeholder="you@example.com" required>
+        <button type="submit">Subscribe</button>
+      </form>
+      <p class="subscribe-note">Replace this form's action with your email provider (e.g. Buttondown, ConvertKit, Mailchimp) before publishing — see notes below.</p>
+      <p class="subscribe-success" id="subscribeSuccess">Thanks — you're on the list.</p>
+    </div>
+  </div>
+
+  <script>
+    // Replace this array with your real posts. Each post can also link to its own page via `url`.
+    const posts = [
+      {
+        title: "Why I stopped reading the news every morning",
+        date: "2026-06-10",
+        excerpt: "A small change in routine that gave me back two hours a week and a much calmer inbox.",
+        url: "#"
+      },
+      {
+        title: "Notes from a slow weekend in the mountains",
+        date: "2026-05-22",
+        excerpt: "What happens when you leave your phone in a drawer for three days straight.",
+        url: "#"
+      },
+      {
+        title: "The case for writing things down by hand",
+        date: "2026-04-30",
+        excerpt: "On memory, friction, and why typing everything might be quietly costing us something.",
+        url: "#"
+      },
+      {
+        title: "A short list of things I changed my mind about this year",
+        date: "2026-03-15",
+        excerpt: "Some beliefs age well. Others don't. Here's an honest accounting of mine.",
+        url: "#"
+      },
+      {
+        title: "First post: why I'm starting this",
+        date: "2026-02-01",
+        excerpt: "An introduction, a promise to write less often but better, and what to expect here.",
+        url: "#"
+      }
+    ];
+
+    let order = "latest"; // "latest" or "oldest"
+
+    function formatDate(iso) {
+      const d = new Date(iso + "T00:00:00");
+      return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    }
+
+    function render() {
+      const sorted = [...posts].sort((a, b) => {
+        const diff = new Date(a.date) - new Date(b.date);
+        return order === "latest" ? -diff : diff;
+      });
+
+      const container = document.getElementById("posts");
+      container.innerHTML = sorted.map(post => `
+        <a class="post" href="${post.url}">
+          <span class="post-date">${formatDate(post.date)}</span>
+          <span>
+            <div class="post-title">${post.title}</div>
+            <div class="post-excerpt">${post.excerpt}</div>
+          </span>
+        </a>
+      `).join("");
+
+      document.getElementById("postCount").textContent =
+        `${posts.length} post${posts.length === 1 ? "" : "s"}`;
+    }
+
+    const toggle = document.getElementById("sortToggle");
+    const label = document.getElementById("sortLabel");
+
+    toggle.addEventListener("click", () => {
+      order = order === "latest" ? "oldest" : "latest";
+      toggle.setAttribute("data-order", order);
+      label.textContent = order === "latest" ? "Latest first" : "Oldest first";
+      render();
+    });
+
+    document.getElementById("subscribeForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      // TODO: send this email to your provider's API/endpoint instead of just showing a message.
+      document.getElementById("subscribeSuccess").classList.add("show");
+      this.reset();
+    });
+
+    render();
+  </script>
+</body>
+</html>
